@@ -1,0 +1,17 @@
+.gradle
+/build/
+gradle.properties
+gradle
+gradlew
+gradlew.bat
+bash_profile
+out
+.idea
+*.iws
+*.iml
+*.ipr
+.DS_Store
+/bin/
+.settings/*
+.classpath
+.project
