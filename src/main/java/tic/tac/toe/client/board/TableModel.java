@@ -1,4 +1,4 @@
-package tic.tac.toe.client;
+package tic.tac.toe.client.board;
 
 import javax.swing.table.DefaultTableModel;
 

@@ -11,11 +11,13 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
+import tic.tac.toe.client.board.GameTable;
+import tic.tac.toe.client.service.GameStompSessionHandler;
+import tic.tac.toe.message.ClientMessage;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,21 +34,7 @@ public class Client {
     public static final int CELL_SIZE = 50;
 
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
-        try {
-            GraphicsEnvironment ge =
-                    GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT,
-                    new File(ClassLoader.getSystemClassLoader().getResource("WalkwayBold.ttf").getFile())));
-        } catch (IOException | FontFormatException e) {
-            LOGGER.error("unable to load custom font", e);
-        }
         JFrame frame = new JFrame();
-        frame.setSize(505, 580);
-        frame.setResizable(false);
-        frame.setLayout(new BorderLayout());
-        GameTable table = new GameTable();
-        frame.getContentPane().add(table, BorderLayout.NORTH);
-        //frame.getContentPane().add(jb2, BorderLayout.SOUTH);
         frame.setVisible(true);
         WebSocketClient simpleWebSocketClient =
                 new StandardWebSocketClient();
@@ -58,10 +46,10 @@ public class Client {
                 new WebSocketStompClient(sockJsClient);
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
-        String url = getProperties().getProperty("server.endpoint");
+        String url = "ws://localhost:8080/chat";
         String userId = "client-" +
                 ThreadLocalRandom.current().nextInt(1, 99);
-        StompSessionHandler sessionHandler = new GameStompSessionHandler(userId, table);
+        StompSessionHandler sessionHandler = new GameStompSessionHandler(userId);
         StompSession session = stompClient.connect(url, sessionHandler)
                 .get();
         BufferedReader in =
@@ -79,20 +67,6 @@ public class Client {
             ClientMessage msg = new ClientMessage(userId, line);
             session.send("/app/chat/java", msg);
         }
-    }
-
-    public static Properties getProperties() {
-        //getProperties().getProperty("server.endpoint")
-        Properties prop = new Properties();
-        InputStream in = ClassLoader.getSystemClassLoader()
-                .getResourceAsStream("application.properties");
-        try {
-            prop.load(in);
-            in.close();
-        } catch (IOException e) {
-            LOGGER.error("unable to load property file", e);
-        }
-        return prop;
     }
 
 }

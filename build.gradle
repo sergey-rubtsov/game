@@ -29,18 +29,11 @@ repositories {
     maven { url "http://repo.spring.io/libs-release-local" }
 }
 
-task "create-dirs" << {
-    sourceSets*.java.srcDirs*.each { it.mkdirs() }
-    sourceSets*.resources.srcDirs*.each { it.mkdirs() }
-}
-
 dependencies {
     compile("org.springframework.boot:spring-boot-starter")
     compile("org.springframework.boot:spring-boot-starter-websocket")
-    compile("org.springframework.boot:spring-messaging")
-
-    compile group: 'org.springframework', name: 'spring-web-reactive', version: '5.0.0.M4'
-
-    compile("com.github.klamonte:jexer:master-SNAPSHOT")
+    //compile("org.springframework.boot:spring-messaging")
+    compileOnly "org.projectlombok:lombok:1.16.16"
+    //compile group: 'org.springframework', name: 'spring-web-reactive', version: '5.0.0.M4'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

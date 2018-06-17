@@ -1,4 +1,4 @@
-package tic.tac.toe.client;
+package tic.tac.toe.client.board;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
@@ -20,7 +20,6 @@ public class BoardTableCellRenderer implements TableCellRenderer {
         //other cells of table must contain Cell objects, we set them before
         //and we handle them in that method:
         JButton button = new JButton(String.valueOf(value));
-        //button.setFont(new Font("WalkwayBold", Font.TRUETYPE_FONT, 12));
         button.setBackground(Color.WHITE);
         return button;
     }
