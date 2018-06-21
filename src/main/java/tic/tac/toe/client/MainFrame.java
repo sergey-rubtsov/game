@@ -10,7 +10,7 @@ import java.awt.*;
 @Component
 public class MainFrame extends JFrame {
 
-    public static final int WIDTH = 505;
+    public static final int WIDTH = 600;
 
     @Autowired
     private GameTable gameTable;
@@ -20,18 +20,16 @@ public class MainFrame extends JFrame {
 
     private String[] args;
 
-    public MainFrame(String title, GameTable gameTable, InfoPanel infoPanel) {
+    public MainFrame(String title) {
         super();
         setTitle(title);
-        setSize(640,480);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(640, 480);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);
-        setSize(WIDTH, 580);
+        setSize(WIDTH, 680);
         setResizable(false);
         setLayout(new BorderLayout());
-        getContentPane().add(gameTable, BorderLayout.NORTH);
-        getContentPane().add(infoPanel, BorderLayout.SOUTH);
     }
 
     public void setArgs(String[] args) {
@@ -39,6 +37,8 @@ public class MainFrame extends JFrame {
     }
 
     public void init() {
+        getContentPane().add(gameTable, BorderLayout.NORTH);
+        getContentPane().add(infoPanel, BorderLayout.SOUTH);
         infoPanel.setText("Starting");
     }
 }

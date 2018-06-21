@@ -1,9 +1,9 @@
 package tic.tac.toe.client.repository;
 
-import org.springframework.stereotype.Repository;
-import tic.tac.toe.model.User;
+import org.springframework.stereotype.Component;
+import tic.tac.toe.server.model.User;
 
-@Repository
+@Component
 public class UserRepositoryImpl implements UserRepository {
 
     private User currentUser;

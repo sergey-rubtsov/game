@@ -1,6 +1,6 @@
 package tic.tac.toe.client.repository;
 
-import tic.tac.toe.model.User;
+import tic.tac.toe.server.model.User;
 
 public interface UserRepository {
 

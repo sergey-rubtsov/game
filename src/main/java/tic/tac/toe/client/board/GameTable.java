@@ -3,13 +3,13 @@ package tic.tac.toe.client.board;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.stereotype.Component;
-import tic.tac.toe.client.Client;
 import tic.tac.toe.client.MainFrame;
-import tic.tac.toe.client.service.EventListener;
+import tic.tac.toe.client.repository.UserRepository;
+import tic.tac.toe.client.service.GameStompSessionHandler;
+import tic.tac.toe.server.message.TurnMessage;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
@@ -19,18 +19,24 @@ import java.awt.event.MouseEvent;
 //this is a customized table
 //we need it to display game field's content
 @Component
-public class GameTable extends JTable implements EventListener {
-
-    @Value("${title}")
-    String title;
+public class GameTable extends JTable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GameTable.class);
 
+    @Autowired
+    private StompSession session;
+
+    @Autowired
+    private UserRepository userRepository;
+
     private Character[][] cells;
+
+    public GameTable() {
+    }
 
     public GameTable(int size) {
         this.cells = initCells(size);
-        int cellSize = (MainFrame.WIDTH - 5) / size;
+        int cellSize = (MainFrame.WIDTH) / size;
         //we need this customized TableModel here to disable editing of table cell by double-click of mouse
         TableModel model = new TableModel(cells.length, cells[0].length);
         setModel(model);
@@ -53,21 +59,9 @@ public class GameTable extends JTable implements EventListener {
             public void mouseClicked(MouseEvent evt) {
                 int row = table.rowAtPoint(evt.getPoint());
                 int col = table.columnAtPoint(evt.getPoint());
-                if (row >= 0 && col >= 0) {
-                    LOGGER.info(row + " " + col);
-                }
+                makeTurn(row, col);
             }
         });
-    }
-
-    //set our Cell objects into each cell of table model in cycle
-    //later our Cell objects will be rendered into another place
-    public void refreshTable(Character[][] cells) {
-        for (int i = 0; i < cells.length; i++) {
-            for (int j = 0; j < cells[i].length; j++) {
-                this.getModel().setValueAt(cells[i][j], i, j);
-            }
-        }
     }
 
     public static Character[][] initCells(int size) {
@@ -80,16 +74,33 @@ public class GameTable extends JTable implements EventListener {
         return cells;
     }
 
-    public void drawSymbol(int x, int y, Character symbol, Character turn) {
-        this.getModel().setValueAt(symbol, x, y);
+    //set our Cell objects into each cell of table model in cycle
+    //later our Cell objects will be rendered into another place
+    public void refreshTable(Character[][] cells) {
+        for (int i = 0; i < cells.length; i++) {
+            for (int j = 0; j < cells[i].length; j++) {
+                this.getModel().setValueAt(cells[i][j], i, j);
+            }
+        }
     }
 
-    public void showWinner(Character winner) {
-
+    public void makeTurn(int x, int y) {
+        TurnMessage turn = new TurnMessage();
+        turn.setMark(userRepository.getCurrentUser().getSymbol());
+        turn.setX(x);
+        turn.setY(y);
+        //userRepository.getCurrentUser().getUuid()
+        //this.session.send("/app/user/GAME UUID", turn);
+        this.session.send("/app/game/" + GameStompSessionHandler.gameUuid, turn);
     }
 
-    public void startGame(Character yourSymbol, Character turn) {
-
+    public void drawMark(int x, int y) {
+        this.getModel().setValueAt(userRepository.getCurrentUser().getSymbol(), x, y);
     }
+
+    public void drawMark(int x, int y, Character mark) {
+        this.getModel().setValueAt(mark, x, y);
+    }
+
 }
 

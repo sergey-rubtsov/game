@@ -6,4 +6,7 @@ import javax.swing.*;
 
 @Component
 public class InfoPanel extends JLabel {
+
+    public InfoPanel() {
+    }
 }
