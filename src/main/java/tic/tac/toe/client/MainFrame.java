@@ -23,7 +23,6 @@ public class MainFrame extends JFrame {
     public MainFrame(String title) {
         super();
         setTitle(title);
-        setSize(640, 480);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);

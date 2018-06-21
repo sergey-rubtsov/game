@@ -89,13 +89,8 @@ public class GameTable extends JTable {
         turn.setMark(userRepository.getCurrentUser().getSymbol());
         turn.setX(x);
         turn.setY(y);
-        //userRepository.getCurrentUser().getUuid()
-        //this.session.send("/app/user/GAME UUID", turn);
+        //this.session.send("/app/game/" + gameStompSessionHandler.getGameUuid(), turn);
         this.session.send("/app/game/" + GameStompSessionHandler.gameUuid, turn);
-    }
-
-    public void drawMark(int x, int y) {
-        this.getModel().setValueAt(userRepository.getCurrentUser().getSymbol(), x, y);
     }
 
     public void drawMark(int x, int y, Character mark) {

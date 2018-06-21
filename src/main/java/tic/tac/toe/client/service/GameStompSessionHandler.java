@@ -41,10 +41,6 @@ public class GameStompSessionHandler extends StompSessionHandlerAdapter {
 
     private boolean subsrcibed = false;
 
-    public static String next;
-
-    public static Character mark;
-
     @Autowired
     private UserRepository userRepository;
 
@@ -82,12 +78,13 @@ public class GameStompSessionHandler extends StompSessionHandlerAdapter {
             @Override
             public void handleFrame(StompHeaders headers,
                                     Object payload) {
-                LOGGER.error("got message {}", payload);
+                LOGGER.info("got message {}", payload);
                 GameStatusMessage status = (GameStatusMessage) payload;
                 gameUuid = status.getUuid();
                 gameType = status.getGameType();
                 List<UserMessage> userMessages = status.getUsers();
-                Optional<UserMessage> me = userMessages.stream().filter(user -> user.getUuid().equals(userRepository.getCurrentUser().getUuid()))
+                Optional<UserMessage> me = userMessages.stream().filter(user ->
+                        user.getUuid().equals(userRepository.getCurrentUser().getUuid()))
                         .findFirst();
                 me.ifPresent(userMessage -> userRepository.getCurrentUser().setSymbol(userMessage.getMark()));
 
@@ -104,10 +101,9 @@ public class GameStompSessionHandler extends StompSessionHandlerAdapter {
                         @Override
                         public void handleFrame(StompHeaders headers,
                                                 Object payload) {
-                            LOGGER.error("got message {}", payload);
+                            LOGGER.info("got message {}", payload);
                             TurnMessage turnMessage = (TurnMessage) payload;
                             gameTable.drawMark(turnMessage.getX(), turnMessage.getY(), turnMessage.getMark());
-                            next = turnMessage.getNext();
                         }
                     });
                     subsrcibed = true;

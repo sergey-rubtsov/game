@@ -21,6 +21,8 @@ public class BoardTableCellRenderer implements TableCellRenderer {
         //and we handle them in that method:
         JButton button = new JButton(String.valueOf(value));
         button.setBackground(Color.WHITE);
+        Font font = button.getFont();
+        button.setFont((new Font(font.getName(), Font.PLAIN, table.getRowHeight() - 2)));
         return button;
     }
 

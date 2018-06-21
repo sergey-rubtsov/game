@@ -1,5 +1,7 @@
 package tic.tac.toe.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -7,6 +9,8 @@ import org.springframework.stereotype.Service;
 import tic.tac.toe.server.exception.BadRequestException;
 import tic.tac.toe.server.exception.InternalServerError;
 import tic.tac.toe.server.exception.ResourceNotFoundException;
+import tic.tac.toe.server.message.TurnMessage;
+import tic.tac.toe.server.model.Cell;
 import tic.tac.toe.server.model.Game;
 import tic.tac.toe.server.model.GameType;
 import tic.tac.toe.server.model.Turn;
@@ -25,15 +29,16 @@ import java.util.UUID;
 @Service
 public class GameService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GameService.class);
+    private static final int WIN_ROW_LENGTH = 3;
     @Value("${player.one}")
     private Character one;
-
     @Value("${player.two}")
     private Character two;
-
+    @Value("${player.three}")
+    private Character three;
     @Value(("${playfield.size}"))
     private int size;
-
     @Autowired
     private SimpMessagingTemplate template;
 
@@ -118,8 +123,13 @@ public class GameService {
         return user;
     }
 
-    public void greeting() {
-        this.template.convertAndSend("/topic/greetings", "Hello");
+    public void sendTurn(String gameUuid, int x, int y, Character mark, String next) {
+        TurnMessage turnMessage = new TurnMessage();
+        turnMessage.setX(x);
+        turnMessage.setY(y);
+        turnMessage.setMark(mark);
+        turnMessage.setNext(next);
+        this.template.convertAndSend("/topic/" + gameUuid, turnMessage);
     }
 
     public Turn processUserTurn(String gameUuid, int x, int y, Character mark) {
@@ -136,6 +146,7 @@ public class GameService {
         }
         if (game.getNext().getSymbol() == mark) {
             game.getField()[y * size + x] = mark;
+            checkWinner(game, x, y, mark);
             List<User> users = game.getUsers();
             users.sort(Comparator.comparing(User::getNumber));
             User next;
@@ -143,7 +154,7 @@ public class GameService {
                 next = users.get(game.getNext().getNumber() + 1);
             } else {
                 next = users.get(0);
-                serverTurn(game);
+                serverTurn(game, next);
             }
             game.setNext(next);
             game = gameRepository.save(game);
@@ -153,7 +164,43 @@ public class GameService {
         }
     }
 
-    private void serverTurn(Game game) {
-        //char[][] field = new char[size][size];
+    private void checkWinner(@NotNull Game game, int x, int y, Character mark) {
+        List<Cell> winner = findWinnerCells(game.getField(), x, y, mark);
+        if (!winner.isEmpty()) {
+            LOGGER.error("game end {}", winner);
+            game.setGameType(GameType.END);
+            gameRepository.save(game);
+        }
     }
+
+    private List<Cell> findWinnerCells(char[] field, int x, int y, Character mark) {
+        return Utils.findRow(Utils.translate(size, field), x, y, mark, WIN_ROW_LENGTH);
+    }
+
+    private void serverTurn(Game game, User next) {
+        List<Integer> variants = new ArrayList<>();
+        for (int i = 0; i < game.getField().length; i++) {
+            if (game.getField()[i] == ' ') {
+                variants.add(i);
+            }
+        }
+        if (variants.isEmpty()) {
+            game.setGameType(GameType.END);
+            processDeadHeat();
+            return;
+        }
+        Random random = new Random();
+        int randomCellNumber = variants.get(random.nextInt(variants.size()));
+        game.getField()[randomCellNumber] = three;
+        gameRepository.save(game);
+        int x = randomCellNumber / size;
+        int y = randomCellNumber % size;
+        sendTurn(game.getUuid(), x, y, three, next.getUuid());
+        checkWinner(game, x, y, three);
+    }
+
+    private void processDeadHeat() {
+
+    }
+
 }
