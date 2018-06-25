@@ -4,6 +4,6 @@ And also it should be for 3 players instead of just 2.
 
 To play, first run ServerApplication and then two instances of ClientApplication.
 
-Server url, marks and play field size can be configured.
+Server url also can be configured.
 
 The solution uses Swing as frontend and Spring Web Sockets as backend application.
