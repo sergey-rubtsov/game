@@ -25,7 +25,7 @@ public class User {
     private String uuid;
 
     @Column(nullable = false)
-    private Character symbol;
+    private Character mark;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Game game;

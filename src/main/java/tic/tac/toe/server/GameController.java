@@ -7,16 +7,11 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import tic.tac.toe.server.message.ClientStatusMessage;
-import tic.tac.toe.server.message.GameStatusMessage;
-import tic.tac.toe.server.message.TurnMessage;
-import tic.tac.toe.server.message.UserMessage;
+import tic.tac.toe.server.message.CellMessage;
+import tic.tac.toe.server.message.StartGameMessage;
 import tic.tac.toe.server.model.Game;
-import tic.tac.toe.server.model.Turn;
 import tic.tac.toe.server.model.User;
-
-import java.util.ArrayList;
-import java.util.List;
+import tic.tac.toe.server.service.GameServiceImpl;
 
 @Controller
 public class GameController {
@@ -24,33 +19,23 @@ public class GameController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameController.class);
 
     @Autowired
-    private GameService gameService;
+    private GameServiceImpl gameService;
 
     @MessageMapping("/user/{uuid}")
-    @SendTo("/topic/status")
-    public GameStatusMessage status(@DestinationVariable("uuid") String uuid,
-                                    ClientStatusMessage message) {
-        LOGGER.info("got game status request " + uuid + " " + message);
+    @SendTo("/topic/status/{uuid}")
+    public StartGameMessage status(@DestinationVariable String uuid) {
+        LOGGER.info("got game status request " + uuid);
         Game game = gameService.processUserStatusRequest(uuid);
-        List<User> users = game.getUsers();
-        List<UserMessage> userMessages = new ArrayList<>();
-        users.forEach(user -> userMessages.add(new UserMessage(user.getUuid(), user.getSymbol())));
-        return new GameStatusMessage(game.getUuid(), game.getGameType(), userMessages);
+        User user = gameService.findUserByUuid(uuid);
+        return new StartGameMessage(game.getUuid(), game.getGameType(), user.getMark());
     }
 
 
-    @MessageMapping("/game/{gameUuid}")
-    @SendTo("/topic/{gameUuid}")
-    public TurnMessage turn(@DestinationVariable String gameUuid,
-                            TurnMessage userTurn) {
-        LOGGER.info("got turn request " + gameUuid + " " + userTurn);
-        Turn turn = gameService.processUserTurn(gameUuid, userTurn.getX(), userTurn.getY(), userTurn.getMark());
-        TurnMessage turnMessage = new TurnMessage();
-        turnMessage.setX(turn.getX());
-        turnMessage.setY(turn.getY());
-        turnMessage.setNext(turn.getNext());
-        turnMessage.setMark(turn.getMark());
-        return turnMessage;
+    @MessageMapping("/turn/{uuid}")
+    public void turn(@DestinationVariable("uuid") String uuid,
+                            CellMessage userTurn) {
+        LOGGER.info("got turn request " + uuid + " " + userTurn);
+        gameService.processUserTurn(uuid, userTurn.getX(), userTurn.getY());
     }
 
 

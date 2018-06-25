@@ -14,6 +14,12 @@ public class Utils {
             {new Cell(-2, 2), new Cell(-1, 1), new Cell(0, 0), new Cell(1, -1), new Cell(2, -2)}
     };
 
+    /**
+     * @param size the dimension of game board
+     * @param field one-dimension array of marks stored in db
+     *
+     * @return 2-d array of marks
+     */
     public static char[][] translate(int size, char[] field) {
         char[][] board = new char[size][size];
         for (int i = 0; i < field.length; i++) {
@@ -22,6 +28,39 @@ public class Utils {
         return board;
     }
 
+
+    /**
+     * @param size the dimension of game board
+     * @param cellIndex the number of char in one-dimension array of marks stored in db
+     *
+     * @return 2-d coordinate
+     */
+    public static Cell translate(int size, int cellIndex) {
+        int x = cellIndex / size;
+        int y = cellIndex % size;
+        return new Cell(x, y);
+    }
+
+    /**
+     * @param size the dimension of game board
+     * @param x coordinate
+     * @param y coordinate
+     *
+     * @return translates coordinate from 2-d array to one-dimension array index
+     */
+    public static int translate(int size, int x, int y) {
+        return y + size * x;
+    }
+
+    /**
+     * @param board 2-d array of marks
+     * @param x coordinate
+     * @param y coordinate
+     * @param mark required character
+     * @param length required length of continuous characters
+     *
+     * @return list of found cells
+     */
     public static List<Cell> findRow(char[][] board, int x, int y, Character mark, int length) {
         List<Cell> found = new ArrayList<>();
         Cell[][] matrix = Utils.LINES;

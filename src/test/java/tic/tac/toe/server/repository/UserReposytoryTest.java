@@ -32,7 +32,7 @@ public class UserReposytoryTest {
     @Test
     public void findUserByUuid() {
         User user = new User();
-        user.setSymbol('X');
+        user.setMark('X');
         user.setNumber(0);
         user.setUuid("UUID2");
         user = userReposytory.save(user);
@@ -43,6 +43,8 @@ public class UserReposytoryTest {
         List<User> users = new ArrayList<>();
         users.add(user);
         game.setUsers(users);
+        game.setUuid("GAME_UUID2");
+        game.setNext(user);
         game = gameRepository.save(game);
         user.setGame(game);
         userReposytory.save(user);

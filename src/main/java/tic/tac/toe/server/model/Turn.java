@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Turn {
 
-    private String next;
+    private Character next;
 
     private int x;
 

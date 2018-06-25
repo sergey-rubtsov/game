@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 import tic.tac.toe.server.model.Game;
 import tic.tac.toe.server.model.GameType;
@@ -33,7 +32,7 @@ public class GameRepositoryTest {
     @Test
     public void findGameByGameType() {
         User user = new User();
-        user.setSymbol('X');
+        user.setMark('X');
         user.setUuid("UUID");
         user.setNumber(0);
         userReposytory.save(user);
@@ -45,6 +44,7 @@ public class GameRepositoryTest {
         users.add(user);
         game.setUsers(users);
         game.setNext(user);
+        game.setUuid("GAME_UUID0");
         gameRepository.save(game);
         List<Game> games = gameRepository.findGameByGameType(GameType.ACTIVE);
         assertFalse(games.isEmpty());
@@ -55,7 +55,7 @@ public class GameRepositoryTest {
     @Test
     public void findGameByUuid() {
         User user = new User();
-        user.setSymbol('X');
+        user.setMark('X');
         user.setUuid("UUID3");
         user.setNumber(0);
         userReposytory.save(user);
@@ -67,6 +67,7 @@ public class GameRepositoryTest {
         users.add(user);
         game.setUsers(users);
         game.setNext(user);
+        game.setUuid("GAME_UUID1");
         game = gameRepository.save(game);
         Optional<Game> found = gameRepository.findGameByUuid(game.getUuid());
         assertTrue(found.isPresent());
